@@ -2,6 +2,7 @@
  * Debugfs support for hosts and cards
  *
  * Copyright (C) 2008 Atmel Corporation
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -399,7 +400,6 @@ void mmc_add_host_debugfs(struct mmc_host *host)
 				root, host, &mmc_ring_buffer_fops))
 		goto err_node;
 #endif
-
 #ifdef CONFIG_MMC_CLKGATE
 	if (!debugfs_create_u32("clk_delay", (S_IRUSR | S_IWUSR),
 				root, &host->clk_delay))
@@ -811,6 +811,9 @@ static ssize_t mmc_bkops_stats_write(struct file *filp,
 	int err;
 
 	if (!card)
+		return cnt;
+
+	if (!access_ok(VERIFY_READ, ubuf, cnt))
 		return cnt;
 
 	stats = &card->bkops.stats;
